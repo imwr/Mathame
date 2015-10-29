@@ -8,24 +8,32 @@
     var ArrowFly = null,//箭
         bomb = null,// 圆弹对象
         bombList = [],// 圆弹集合
+        radiusList = [],// 同心圆半径集合
         obj = [];// 临时圆弹集合
-    var radius = 12,// 同心圆基本半径
-        radiusList = [];// 同心圆半径集合
-    var time = 20,// 动画间隔，毫秒
-        circleNum = 5,// 同心圆圈
-        period = 30;// 动画周期，乘以间隔为动画持续时间
     var temp = [], temp1 = 1, temp2 = [];// 临时变量数组
+
+    $.mathame = function (opts) {
+        return Game.init(opts);
+    };
+    var defaults = {
+        time: 20,// 动画间隔，毫秒
+        circleNum: 5,// 同心圆圈
+        radius: 12,// 同心圆基本半径
+        period: 30// 动画周期，乘以间隔为动画持续时间
+    };
     var Game = {
         containerH: 0,// 容器高
         containerW: 0,// 容器宽
         bombId: 0,// 计时器ID
         loopNum: 1,// 初始循环变量数
-        init: function () {
+        init: function (opts) {
             if (!"getContext" in document.createElement('canvas')) {
                 return alert("your brower can't support canvas");
             }
+            defaults = $.extend({}, defaults, opts);
             this.canvas(); // 初始2d画布
             this.drawxy(this.containerW, this.containerH);
+            return this;
         },
         canvas: function () {
             var canvas = $("#canvas");
@@ -43,6 +51,45 @@
             this.ctx.lineTo(x / 2, y);
             this.ctx.stroke();
             this.ctx.save();
+        },
+        stop: function () {
+            ArrowFly && ( ArrowFly = ArrowFly.destroy());
+            bombList = [];
+            obj = [];
+            temp = [];
+            temp2 = [];
+            this.loopNum = 1;
+            var _this = this;
+            this.bombId && clearInterval(this.bombId);
+            return this;
+        },
+        // 生成基本对象
+        start: function (opts) {
+            defaults = $.extend({}, defaults, opts);
+            var _this = this;
+            this.bombId = setInterval(function () {
+                var len = _this.loopNum * 8;
+                radiusList[_this.loopNum] = Util.distanceRadius(defaults.radius, len);
+                var color = Util.randomColor();
+                for (var i = 0; i < len; i++) {
+                    var r = Util.distanceRadius(defaults.radius, len);
+                    var angle = (2 * i * Math.PI / len) % (2 * Math.PI);
+                    bomb = new Bomb(r, angle, _this.loopNum, color);
+                    bombList.push(bomb);
+                    bomb = new Bomb(r, angle, _this.loopNum, color);
+                    obj.push(bomb);
+                }
+                _this.drawList(_this.containerW, _this.containerH, bombList);
+                if (_this.loopNum == defaults.circleNum) {
+                    clearInterval(Game.bombId);
+                    _this.loopNum = 0;
+                    _this.bombId = setInterval(_this.doCircle, defaults.time);
+                    //Game.bombId = setInterval(Game.randomMath, defaults.time);
+                } else {
+                    _this.loopNum++;
+                }
+            }, defaults.time);// 画点
+            return this;
         },
         drawList: function (x, y, list, list1) {
             this.ctx.clearRect(0, 0, Game.containerW, Game.containerH);
@@ -69,42 +116,17 @@
             }
             this.ctx.restore();
         },
-        // 生成基本对象
-        start: function () {
-            this.bombId = setInterval(function () {
-                var len = Game.loopNum * 8;
-                radiusList[Game.loopNum] = Util.distanceRadius(radius, len);
-                var color = Util.randomColor();
-                for (var i = 0; i < len; i++) {
-                    var r = Util.distanceRadius(radius, len);
-                    var angle = (2 * i * Math.PI / len) % (2 * Math.PI);
-                    bomb = new Bomb(r, angle, Game.loopNum, color);
-                    bombList.push(bomb);
-                    bomb = new Bomb(r, angle, Game.loopNum, color);
-                    obj.push(bomb);
-                }
-                Game.drawList(Game.containerW, Game.containerH, bombList);
-                if (Game.loopNum == circleNum) {
-                    clearInterval(Game.bombId);
-                    Game.loopNum = 0;
-                    Game.bombId = setInterval(Game.doCircle, time);
-                    //Game.bombId = setInterval(Game.randomMath, time);
-                } else {
-                    Game.loopNum++;
-                }
-            }, time);// 画点
-            return this;
-        },
         // 每段动画结束处理公共函数
         interval: function (func, time, list1, list2) {
+            var _this = this;
             if (temp1 == 0) {
                 temp1 = 1;
-                Game.loopNum = 0;
+                _this.loopNum = 0;
                 clearInterval(Game.bombId);
-                Game.bombId = setInterval(func, time);
+                _this.bombId = setInterval(func, defaults.time);
             } else {
-                Game.loopNum++;
-                Game.drawList(Game.containerW, Game.containerH, list1, list2);
+                _this.loopNum++;
+                _this.drawList(_this.containerW, _this.containerH, list1, list2);
             }
         },
         randomMath: function () {
@@ -120,24 +142,24 @@
                     temp1 = 0;
                 }
             }
-            Game.interval(null, time, bombList);
+            Game.interval(null, defaults.time, bombList);
         },
         doCircle: function () {
             var len = bombList.length;
             for (var i = 0; i < len; i++) {
-                if (Game.loopNum < period) {
+                if (Game.loopNum < defaults.period) {
                     if (bombList[i].loop % 2 == 1)// 奇数圈顺时针旋转
                         bombList[i].rotateDown(Math.PI / 45);
-                } else if (Game.loopNum < period * 2) {
+                } else if (Game.loopNum < defaults.period * 2) {
                     if (bombList[i].loop % 2 == 0)// 偶数圈逆时针旋转
                         bombList[i].rotateUp(Math.PI / 45);
-                } else if (Game.loopNum < period * 3) {
+                } else if (Game.loopNum < defaults.period * 3) {
                     if (bombList[i].loop % 2 == 1) {// 奇数圈半径减小，同事顺时针旋转
                         bombList[i].radiusReduce(Math.PI / 45);
                     } else {// 偶数圈逆时针旋转
                         bombList[i].rotateUp(Math.PI / 45);
                     }
-                } else if (Game.loopNum < period * 4) {
+                } else if (Game.loopNum < defaults.period * 4) {
                     if (bombList[i].loop % 2 == 1) {// 奇数圈半径增大，同时逆时针旋转
                         bombList[i].radiusAdd(Math.PI / 45);
                     } else {// 偶数圈顺时针旋转
@@ -147,23 +169,23 @@
                     temp1 = 0;
                 }
             }
-            Game.interval(Game.spreadCircle, time, bombList);
+            Game.interval(Game.spreadCircle, defaults.time, bombList);
         },
         spreadCircle: function () {
             var len = obj.length;
             for (var i = 0; i < len; i++) {
-                for (var j = 0; j < circleNum; j++) {
-                    if (Game.loopNum >= j * period / 6 && Game.loopNum < j * period / 6 + period
-                        && obj[i].loop == circleNum - j) {
-                        obj[i].spreadX(period);
-                        obj[i].moveDown(radiusList[circleNum] / period);
+                for (var j = 0; j < defaults.circleNum; j++) {
+                    if (Game.loopNum >= j * defaults.period / 6 && Game.loopNum < j * defaults.period / 6 + defaults.period
+                        && obj[i].loop == defaults.circleNum - j) {
+                        obj[i].spreadX(defaults.period);
+                        obj[i].moveDown(radiusList[defaults.circleNum] / defaults.period);
                     }
                 }
-                if (Game.loopNum == period + (circleNum - 1) * period / 6) {
+                if (Game.loopNum == defaults.period + (defaults.circleNum - 1) * defaults.period / 6) {
                     temp1 = 0;
                 }
             }
-            Game.interval(Game.changeCir, time, bombList, obj);
+            Game.interval(Game.changeCir, defaults.time, bombList, obj);
         },
         changeCir: function () {
             var len = bombList.length;
@@ -189,7 +211,7 @@
                     bombList[i].ext = bombList[i].r;
                 }
             }
-            Game.interval(Game.changeCir1, time, bombList, obj);
+            Game.interval(Game.changeCir1, defaults.time, bombList, obj);
         },
         changeCir1: function () {
             var len = bombList.length;
@@ -225,26 +247,26 @@
                     bombList[i].ext2 = false;// 初始垂直速度
                 }
             }
-            Game.interval(Game.cancelSpreadCircle, time, bombList, obj);
+            Game.interval(Game.cancelSpreadCircle, defaults.time, bombList, obj);
         },
         cancelSpreadCircle: function () {
             var len = obj.length;
             for (var i = 0; i < len; i++) {
                 bombList[i].landY();
-                for (var j = 0; j < circleNum; j++) {
-                    if (Game.loopNum >= j * period / 5 + 50 && Game.loopNum < j * period / 5 + period + 50
-                        && obj[i].loop == circleNum - j && obj[i].loop != circleNum) {
-                        obj[i].cancelSpreadX(period);
-                        obj[i].moveUp(obj[i].r / period);
+                for (var j = 0; j < defaults.circleNum; j++) {
+                    if (Game.loopNum >= j * defaults.period / 5 + 50 && Game.loopNum < j * defaults.period / 5 + defaults.period + 50
+                        && obj[i].loop == defaults.circleNum - j && obj[i].loop != defaults.circleNum) {
+                        obj[i].cancelSpreadX(defaults.period);
+                        obj[i].moveUp(obj[i].r / defaults.period);
                     }
                 }
-                if (Game.loopNum == period + (circleNum - 1) * period / 5 + 50) {
+                if (Game.loopNum == defaults.period + (defaults.circleNum - 1) * defaults.period / 5 + 50) {
                     temp1 = 0;
                 }
             }
             if (temp1 == 0) {
                 // 要使圈数间隔的圆滚动到两两相切的位置停止，计算每个点的最大偏移量，数组下标对应点的圈数
-                for (var i = 1; i <= circleNum; i++) {
+                for (var i = 1; i <= defaults.circleNum; i++) {
                     bombList = [];
                     temp2[i] = 0;
                     if (i == 1 || i == 2) {
@@ -254,20 +276,20 @@
                     }
                 }
                 // rollCircle周期
-                temp[0] = parseInt(temp2[circleNum - 1] / (circleNum - 1));
+                temp[0] = parseInt(temp2[defaults.circleNum - 1] / (defaults.circleNum - 1));
             }
-            Game.interval(Game.rollCircle, time, bombList, obj);
+            Game.interval(Game.rollCircle, defaults.time, bombList, obj);
         },
         rollCircle: function () {
             var len = obj.length;
             for (var i = 0; i < len; i++) {
                 // 最大圈不变换，如果小于最大偏移量及时间，继续滚动
-                if (obj[i].loop != circleNum && temp2[obj[i].loop] >= obj[i].loop * Game.loopNum) {
+                if (obj[i].loop != defaults.circleNum && temp2[obj[i].loop] >= obj[i].loop * Game.loopNum) {
                     if (obj[i].loop % 2 == 0) {
-                        obj[i].rollLeft(Math.PI / (45 - obj[i].loop), obj[i].loop * Game.loopNum, radiusList[circleNum]
+                        obj[i].rollLeft(Math.PI / (45 - obj[i].loop), obj[i].loop * Game.loopNum, radiusList[defaults.circleNum]
                             - obj[i].r);
                     } else {
-                        obj[i].rollRight(Math.PI / (45 - obj[i].loop), obj[i].loop * Game.loopNum, radiusList[circleNum]
+                        obj[i].rollRight(Math.PI / (45 - obj[i].loop), obj[i].loop * Game.loopNum, radiusList[defaults.circleNum]
                             - obj[i].r);
                     }
                 } else if (Game.loopNum == temp[0]) {
@@ -276,26 +298,26 @@
             }
             if (temp1 == 0) {
                 // 箭初始角度
-                temp[1] = temp[4] = Math.atan(radiusList[circleNum - 2] / temp2[circleNum - 2]);
+                temp[1] = temp[4] = Math.atan(radiusList[defaults.circleNum - 2] / temp2[defaults.circleNum - 2]);
                 // 箭起点
                 temp[2] = Game.containerW;
-                temp[3] = Game.containerH / 2 + radiusList[circleNum] - Game.containerW / 2 * radiusList[circleNum - 2]
-                    / temp2[circleNum - 2];
+                temp[3] = Game.containerH / 2 + radiusList[defaults.circleNum] - Game.containerW / 2 * radiusList[defaults.circleNum - 2]
+                    / temp2[defaults.circleNum - 2];
                 if (temp[3] < 0) {
                     temp[3] = 0;
-                    temp[2] = Game.containerW / 2 + (Game.containerH / 2 + radiusList[circleNum])
-                        / (radiusList[circleNum - 2] / temp2[circleNum - 2]);
+                    temp[2] = Game.containerW / 2 + (Game.containerH / 2 + radiusList[defaults.circleNum])
+                        / (radiusList[defaults.circleNum - 2] / temp2[defaults.circleNum - 2]);
                 }
             }
-            Game.interval(Game.arrowFly, time, obj);
-            // Game.interval(Game.rollCircleRecovery, time, obj);
+            Game.interval(Game.arrowFly, defaults.time, obj);
+            // Game.interval(Game.rollCircleRecovery, defaults.time, obj);
         },
         arrowFly: function () {
             !ArrowFly && ( ArrowFly = Arrow.init());
             if (temp[2] > radiusList[1] + Game.containerW / 2) {
                 ArrowFly.drawArrow(temp[2], temp[3], 2 * Math.PI - temp[1]);
                 temp[2] -= 20;
-                temp[3] += 20 * radiusList[circleNum - 2] / temp2[circleNum - 2];
+                temp[3] += 20 * radiusList[defaults.circleNum - 2] / temp2[defaults.circleNum - 2];
             } else if (temp[2] > Game.containerW / 2) {// 移至第一圆圆心出渐渐转换角度至水平
                 ArrowFly.drawArrow(temp[2], temp[3], 2 * Math.PI - temp[1]);
                 temp[2] -= radiusList[1] / (temp[1] / Math.PI * 30);// 总距离除以总时间
@@ -305,41 +327,41 @@
                     temp[4] = 0;
             } else if (temp[2] > Game.containerW / 2 - radiusList[2]) {// 移至原点渐渐转换角度至第二大圆圆心倾斜度
                 ArrowFly.drawArrow(temp[2], temp[3], temp[4]);
-                temp[2] -= radiusList[2] / (Math.atan(radiusList[circleNum - 1] / temp2[circleNum - 1]) / Math.PI * 30);
-                temp[3] -= radiusList[2] / (Math.atan(radiusList[circleNum - 1] / temp2[circleNum - 1]) / Math.PI * 30)
+                temp[2] -= radiusList[2] / (Math.atan(radiusList[defaults.circleNum - 1] / temp2[defaults.circleNum - 1]) / Math.PI * 30);
+                temp[3] -= radiusList[2] / (Math.atan(radiusList[defaults.circleNum - 1] / temp2[defaults.circleNum - 1]) / Math.PI * 30)
                     * Math.tan(temp[4]);
                 temp[4] += Math.PI / 30;
-                if (temp[4] > Math.atan(radiusList[circleNum - 1] / temp2[circleNum - 1]))
-                    temp[4] = Math.atan(radiusList[circleNum - 1] / temp2[circleNum - 1]);
+                if (temp[4] > Math.atan(radiusList[defaults.circleNum - 1] / temp2[defaults.circleNum - 1]))
+                    temp[4] = Math.atan(radiusList[defaults.circleNum - 1] / temp2[defaults.circleNum - 1]);
             } else if (temp[2] > 0) {
                 ArrowFly.drawArrow(temp[2], temp[3], temp[4]);
                 temp[2] -= 20;
-                temp[3] -= 20 * radiusList[circleNum - 1] / temp2[circleNum - 1];
+                temp[3] -= 20 * radiusList[defaults.circleNum - 1] / temp2[defaults.circleNum - 1];
             } else {
                 ArrowFly.destroy();
                 temp1 = 0;
             }
-            Game.interval(Game.rollCircleRecovery, time, obj);
+            Game.interval(Game.rollCircleRecovery, defaults.time, obj);
         },
         rollCircleRecovery: function () {
             var len = obj.length;
             for (var i = 0; i < len; i++) {
                 // 最大圈不变换
-                if (obj[i].loop != circleNum) {
+                if (obj[i].loop != defaults.circleNum) {
                     // 如果小于最大偏移量及时间，继续滚动
                     if (Game.loopNum <= temp[0] && temp2[obj[i].loop] >= obj[i].loop * (temp[0] - Game.loopNum)) {//
                         if (obj[i].loop % 2 == 0) {
                             obj[i].rollLeft(Math.PI / (45 + obj[i].loop), obj[i].loop * (temp[0] - Game.loopNum),
-                                radiusList[circleNum] - obj[i].r);
+                                radiusList[defaults.circleNum] - obj[i].r);
                         } else {
                             obj[i].rollRight(Math.PI / (45 + obj[i].loop), obj[i].loop * (temp[0] - Game.loopNum),
-                                radiusList[circleNum] - obj[i].r);
+                                radiusList[defaults.circleNum] - obj[i].r);
                         }
                     }
-                } else if (Game.loopNum > temp[0] && Game.loopNum <= temp[0] + period) {
-                    obj[i].cancelSpreadX(period);
-                    obj[i].moveUp(obj[i].r / period);
-                } else if (Game.loopNum > temp[0] + period) {
+                } else if (Game.loopNum > temp[0] && Game.loopNum <= temp[0] + defaults.period) {
+                    obj[i].cancelSpreadX(defaults.period);
+                    obj[i].moveUp(obj[i].r / defaults.period);
+                } else if (Game.loopNum > temp[0] + defaults.period) {
                     temp1 = 0;
                 }
             }
@@ -349,15 +371,15 @@
                     bombList.push(bomb);
                 }
             }
-            Game.interval(Game.makeBall, time, obj);
+            Game.interval(Game.makeBall, defaults.time, obj);
         },
         makeBall: function () {
             var len = obj.length;
             for (var i = 0; i < len; i++) {
                 if (Game.loopNum < 90) {
                     obj[i].roll3Dx(Math.PI / 45);
-                } else if (Game.loopNum < 90 + period) {
-                    obj[i].moveUp(radiusList[circleNum - obj[i].loop] / period);
+                } else if (Game.loopNum < 90 + defaults.period) {
+                    obj[i].moveUp(radiusList[defaults.circleNum - obj[i].loop] / defaults.period);
                 } else {
                     temp1 = 0;
                 }
@@ -386,7 +408,7 @@
                     obj[i].ext1 = obj[i].y - y;
                 }
                 clearInterval(Game.bombId);
-                Game.bombId = setInterval(Game.mouseMove(), time);
+                Game.bombId = setInterval(Game.mouseMove(), defaults.time);
             });
         },
         mouseMove: function () {
@@ -398,26 +420,6 @@
             Game.drawList(Game.containerW, Game.containerH, obj);
         }
     };
-
-    $("#start").click(function () {
-        Game.bombId && clearInterval(Game.bombId);
-        ArrowFly && ( ArrowFly = ArrowFly.destroy());
-        bombList = [];
-        obj = [];
-        temp = [];
-        temp2 = [];
-        Game.loopNum = 1;
-        $("#stop").attr("disabled", false);
-        Game.start();
-    });
-    $("#canvas").mousedown(function (event) {
-        var w = parseInt($(window).width()) / 2;
-        $("#debug").html('X：' + (event.screenX - w - 194) + '，Y：' + (event.screenY - 505));
-    });
-    $("#stop").click(function () {
-        clearInterval(Game.bombId);
-    });
-    Game.init();// 画坐标轴，方便测试
 
     var Bomb = function (r, angle, loopNum, color) {
         this.x = r * Math.sin(angle);

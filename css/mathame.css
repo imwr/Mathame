@@ -65,3 +65,14 @@ body {
     outline: 0;
     border: none
 }
+
+.math-ops-input {
+    color: #fff;
+    background-color: #4A70B5;
+    -webkit-appearance: none;
+    padding: 0 8px;
+    height: 24px;
+    width: 24%;
+    outline: 0;
+    border: none
+}
