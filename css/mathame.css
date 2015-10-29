@@ -14,7 +14,7 @@ body {
 }
 
 .math-content {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     height: 451px;
     border: 1px solid #3E5D96;
 }
@@ -72,7 +72,14 @@ body {
     -webkit-appearance: none;
     padding: 0 8px;
     height: 24px;
-    width: 24%;
+    float: left;
+    width: 25%;
     outline: 0;
     border: none
+}
+
+@media only screen and (max-width: 799px) {
+    .math-ops-input {
+        width: 50%;
+    }
 }
