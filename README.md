@@ -1,5 +1,5 @@
 # mathame
-math game ¡ª¡ª ÊıÑ§Ğ¡ÓÎÏ·£¬just fun
+math game â€”â€” æ•°å­¦å°æ¸¸æˆï¼Œjust fun
 
 ###snapshot###
 ![image](snapshot/test.png)
