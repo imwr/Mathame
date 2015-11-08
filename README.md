@@ -5,4 +5,4 @@ math game —— 数学小游戏，just fun
 ![image](snapshot/test.png)
 
 ###demo###
-See [here](http://tt-cc.cn/front-end/item/14-mathame)
+See [here](http://tt-cc.cn/front-end/jquery-game/mathame)
