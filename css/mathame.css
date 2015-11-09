@@ -1,41 +1,13 @@
-body {
-    background: #5B8FEF;
-    height: 100%;
-    font-size: 12px;
-}
-
-.math-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    margin-top: -224px;
-}
-
 .math-content {
-    background: rgba(0, 0, 0, 0.5);
-    height: 451px;
-    border: 1px solid #3E5D96;
-}
-
-@media only screen and (min-width: 751px) {
-    .math-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-top: -224px;
-        margin-left: -375px;
-    }
-
-    .math-content {
-        width: 750px;
-    }
+    height: 450px;
+	background: #f0f0f0;
+	border: 1px solid #ddd;
+	font-size: 12px;
 }
 
 .math-toolbar {
-    height: 24px;
-    background: #4A70B5;
+    height: 30px;
+	font-size : 12px;
 }
 
 .math-button {
@@ -46,7 +18,7 @@ body {
 }
 
 .math-debug {
-    color: greenyellow;
+    color: #666;
     line-height: 24px;
 }
 
@@ -61,25 +33,24 @@ body {
     -webkit-appearance: none;
     padding: 0 8px;
     height: 24px;
-    width: 50%;
+    width: 49%;
     outline: 0;
     border: none
 }
 
 .math-ops-input {
-    color: #fff;
-    background-color: #4A70B5;
     -webkit-appearance: none;
     padding: 0 8px;
+	margin: 0 0 1% 1%;
     height: 24px;
     float: left;
     width: 25%;
     outline: 0;
-    border: none
+    border: 1px solid #f1f1f1;
 }
 
 @media only screen and (max-width: 799px) {
     .math-ops-input {
-        width: 50%;
+        width: 49%;
     }
 }

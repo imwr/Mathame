@@ -16,9 +16,10 @@
         return Game.init(opts);
     };
     var defaults = {
+		pointRadius : 6,//圆点半径
         time: 20,// 动画间隔，毫秒
-        circleNum: 5,// 同心圆圈
-        radius: 12,// 同心圆基本半径
+        circleNum: 6,// 同心圆圈
+        radius: 20,// 同心圆基本半径
         period: 30// 动画周期，乘以间隔为动画持续时间
     };
     var Game = {
@@ -99,7 +100,7 @@
             if (typeof (list) != "undefined") {
                 for (var i = 0; i < list.length; i++) {
                     this.ctx.beginPath();
-                    this.ctx.arc(list[i].x, list[i].y, 3, 0, 2 * Math.PI, false);
+                    this.ctx.arc(list[i].x, list[i].y, defaults.pointRadius, 0, 2 * Math.PI, false);
                     this.ctx.fillStyle = list[i].color;
                     this.ctx.fill();
                     this.ctx.stroke();
@@ -108,7 +109,7 @@
             if (typeof (list1) != "undefined") {
                 for (var i = 0; i < list1.length; i++) {
                     this.ctx.beginPath();
-                    this.ctx.arc(list1[i].x, list1[i].y, 3, 0, 2 * Math.PI, false);
+                    this.ctx.arc(list1[i].x, list1[i].y, defaults.pointRadius, 0, 2 * Math.PI, false);
                     this.ctx.fillStyle = list1[i].color;
                     this.ctx.fill();
                     this.ctx.stroke();
