@@ -1,8 +1,9 @@
-/**
- * @author wr
+/* =========================================================== *
+ * @site http:tt-cc.cn
  * @email mvpjly@163.com
- * @date 2013/07/28
- */
+ * Copyright 2014 imwr
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * =========================================================== */
 ;
 (function ($) {
     var ArrowFly = null,//箭
@@ -11,12 +12,11 @@
         radiusList = [],// 同心圆半径集合
         obj = [];// 临时圆弹集合
     var temp = [], temp1 = 1, temp2 = [];// 临时变量数组
-
     $.mathame = function (opts) {
         return Game.init(opts);
     };
     var defaults = {
-		pointRadius : 6,//圆点半径
+        pointRadius: 6,//圆点半径
         time: 20,// 动画间隔，毫秒
         circleNum: 6,// 同心圆圈
         radius: 20,// 同心圆基本半径
@@ -421,7 +421,6 @@
             Game.drawList(Game.containerW, Game.containerH, obj);
         }
     };
-
     var Bomb = function (r, angle, loopNum, color) {
         this.x = r * Math.sin(angle);
         this.y = r * Math.cos(angle);
@@ -433,7 +432,6 @@
         this.ext1 = r;
         this.ext2 = 0;
     };
-
     Bomb.prototype = {
         // 左移
         moveLeft: function (speed) {
@@ -539,7 +537,6 @@
             this.y = this.y - this.ext2;
         }
     };
-
     var Util = {
         randomColor: function () {
             var arrHex = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
@@ -561,7 +558,6 @@
             return radius * loopNum;
         }
     };
-
     var Arrow = {
         ele: null,
         init: function () {
@@ -584,7 +580,6 @@
             this.ctx.clearRect(0, 0, Game.containerW, Game.containerH);
             this.ctx.translate(x, y);
             this.ctx.rotate(angle);
-
             var mygradient = this.ctx.createLinearGradient(5 / 2, -5 / 2, 100, 5);
             mygradient.addColorStop(0, "#FF0000");
             mygradient.addColorStop(1, "#B1D658");
@@ -593,7 +588,6 @@
             this.ctx.shadowColor = "#B1D658";
             // 箭中部主体
             this.ctx.fillRect(5 / 2, -5 / 2, 100, 5);
-
             // 箭头左上
             this.ctx.beginPath();
             this.ctx.strokeStyle = '#FF0000';
@@ -605,7 +599,6 @@
             this.ctx.moveTo(0, 0);
             this.ctx.lineTo(16, 10);
             this.ctx.stroke();
-
             this.ctx.beginPath();
             this.ctx.strokeStyle = '#B1D658';
             this.ctx.lineWidth = 5 / 2;
