@@ -6,5 +6,5 @@
 
 <!--
 ###demo###
-See [here](http://tt-cc.cn/front-end/jquery-game/mathame)
+See [here](http://tt-cc.cc/front-end/jquery-game/mathame)
 -->
